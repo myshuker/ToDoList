@@ -2,11 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import Counter from "./Counter";
+//import './index.css';
 
 class Main extends React.Component {
   render() {
     return (
-      <div>
+      <div className="container">
         <h1>Todo List App</h1>
         <Counter initialCounter={0} />
         <App />

@@ -1,73 +1,27 @@
 import React from "react";
+import TodoItems from "./component/TodoItems";
+import AddItem from "./component/AddItem";
 
-// Start TodoItems Component
-const TodoItems = (props) => {
-  console.log(props);
-  const { items, deleteItem, todoCompleted } = props;
-  const length = items.length;
-    const showItems = length ? (
-    items.map((item) => {
-      return (
-        <div>          
-        <li key={item.id} style={{ textDecoration: item.completed ? "line-through" : "none" }}>
-          {item.description}
-          {/* <input type="checkbox" checked={item.completed} onChange={todoCompleted} /> */}
-          <input type="checkbox" checked={item.completed} onChange={() => todoCompleted(item.id)} />
-          <button onClick={() => deleteItem(item.id)}>Delete</button>
-        </li>
-        </div>
-      );
-    })
-  ) : (
-    <p>NO items to show</p>
-  );
-  return <div>{showItems}</div>;
-};
 
-// END TodoItems Component
+function fetchTodo() { 
+  const URL = `https://gist.githubusercontent.com/benna100/391eee7a119b50bd2c5960ab51622532/raw`
+  return fetch(URL).then((response) => response.json())
+}
 
 class App extends React.Component {
   state = {
-    todos: [
-      {
-        id: 1,
-        description: "Get out of bed",
-        completed: false,
-      },
-      {
-        id: 2,
-        description: "Brush teeth",
-        completed: false,
-      },
-      {
-        id: 3,
-        description: "Eat breakfast",
-        completed: false,
-      },
-      {
-        id: 4,
-        description: "Go the work",
-        completed: false,
-      },
-      {
-        id: 5,
-        description: "Come home",
-        completed: false,
-      },
-    ],
+    todos: [],
   };
 
-  // first way to delete
-  //  deleteItem = (id) => {
-  //   console.log(id);
-  //   let items = this.state.todos;
-  //   let index = items.findIndex((item) => item.id === id);
-  //   items.splice(index, 1);
-  //   this.setState({ todos: items, });
-  // };
+  componentDidMount() {
+    fetchTodo().then(body=>{
+      this.setState({ 
+        todos: body
+      })
+    })
+  }
 
-  // another way to delete
-  deleteItem = (id) => {
+  deleteItem =(id) =>{
     console.log(id);
     let items = this.state.todos.filter((item) => {
       return item.id !== id;
@@ -77,10 +31,9 @@ class App extends React.Component {
     });
   };
 
-  
   todoCompleted = (id) => {
     console.log(id);
-    let items = this.state.todos.map(item => {
+    let items = this.state.todos.map((item) => {
       if (item.id === id) {
         return {
           ...item,
@@ -95,26 +48,84 @@ class App extends React.Component {
     });
   };
 
-  handleAdd = () => {
-    console.log("hello");
-    const randomId = Math.random();
-    const newItem = {
-      id: randomId,
-      description: "random Todo",
-      completed: false,
-    };
-    const newList = [...this.state.todos, newItem];
-    this.setState({
-      todos: newList,
-    });
+  addItem = (item) => {
+    item.id = Math.random();
+    let items = this.state.todos;
+    items.push(item);
+    this.setState({ items });
   };
+
+  
+  
+/* 
+  editItem = (id) => {
+    console.log(id);
+    console.log('from edit');
+    this.setState({
+      todos: this.state.todos.map((item, index) => {
+        if (id === index) {
+          return {
+            ...item,
+            description: (
+              <input type="text"  placeholder="update todo"  onChange={(e) => {this.setState({ updateInput: e.target.value })}}
+              />
+            ),
+          };
+        } else {
+          return item;
+        }
+      }),
+    })
+  };
+ */
+  
+handleChange = (e) => {
+  //  console.log(e.target.value);
+  this.setState({
+    [e.target.id]: e.target.value,
+  });
+};
+updateItem = (e) => {
+   console.log('from Update');
+   /* 
+    this.setState({
+      [e.target.id]: e.target.value,
+    }); */
+ 
+   
+};
+
+editItem = (id) => {
+  console.log(id);
+  let items = this.state.todos.map((item) => {
+    if (item.id === id) {
+      return {
+        ...item,
+        description: ( 
+        <input type="text"  placeholder="update Todo" onChange={this.handleChange}
+        id="description"
+              onChange={this.handleChange}
+              value={this.state.description}/>
+        )
+      };
+    } else {
+      return item;
+    }
+  });
+  this.setState({
+    todos: items,
+  });
+};
+
 
   render() {
     return (
-      <div>
-        <input type="button" value="Add Todo" onClick={this.handleAdd} />
-        <TodoItems items={this.state.todos}  deleteItem={this.deleteItem}
-          todoCompleted={this.todoCompleted}
+      <div >
+        <AddItem addItem={this.addItem} />
+        <TodoItems
+          items={this.state.todos}
+          deleteItem={this.deleteItem}
+          todoCompleted={this.todoCompleted} editItem={this.editItem} updateItem={this.updateItem}
         />
       </div>
     );
